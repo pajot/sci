@@ -1,0 +1,28 @@
+--- a/m4/java.m4	2013-03-29 11:46:01.000000000 -0400
++++ b/m4/java.m4	2013-04-18 14:32:57.960646623 -0400
+@@ -837,9 +837,15 @@
+ #------------------------------------------------------------------------
+ 
+ AC_DEFUN([AC_JAVA_CHECK_PACKAGE], [
++  PACKAGE_JAR_FILE=
++  found_jar=no
++  AC_ARG_WITH([$1],[AS_HELP_STRING([--with-$1],[path to jar file for $1])],[
++    if ! test x$withval = x ; then
++      PACKAGE_JAR_FILE=$withval
++      found_jar=yes
++    fi]);
++  if test "$found_jar" = "no"; then
+     AC_MSG_CHECKING($1)
+-    PACKAGE_JAR_FILE=
+-    found_jar=no
+     saved_ac_java_classpath=$ac_java_classpath
+     DEFAULT_JAR_DIR="/usr/share/java /usr/lib/java /usr/share/java /usr/share/java/jar /opt/java/lib /usr/local/java /usr/local/java/jar /usr/local/share/java /usr/local/share/java/jar /usr/local/lib/java $(find /usr/share/java/ -maxdepth 1 -type d 2>/dev/null) $(find /usr/lib64/ -maxdepth 1 -type d 2>/dev/null) $(find  /usr/lib/ -maxdepth 1 -type d 2>/dev/null)  $(find /usr/share/*/lib -maxdepth 1 -type d 2>/dev/null)"
+     for jardir in "`pwd`/thirdparty" "`pwd`/jar" $DEFAULT_JAR_DIR; do
+@@ -863,6 +869,7 @@
+         done
+       done
+     done
++  fi
+     if test "$found_jar" = "no"; then
+       AC_MSG_RESULT([no])
+       if test "$4" = "yes"; then

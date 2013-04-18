@@ -17,8 +17,8 @@ KEYWORDS="~x86 ~amd64"
 
 IUSE=""
 
-RDEPEND=">=virtual/jre-1.4"
-DEPEND=">=virtual/jdk-1.4
+RDEPEND=">=virtual/jre-1.5"
+DEPEND=">=virtual/jdk-1.5
 	app-arch/unzip
 	dev-java/skinlf"
 

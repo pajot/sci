@@ -50,19 +50,19 @@ CDEPEND="
 		dev-java/avalon-framework:4.2
 		dev-java/batik:1.7
 		dev-java/commons-io:1
-		>=dev-java/flexdock-1.2:0
+		>=dev-java/flexdock-1.2.3:0
 		dev-java/fop:0
 		dev-java/gluegen:2
 		dev-java/javahelp:0
 		dev-java/jeuclid-core:0
 		dev-java/jgoodies-looks:2.0
 		dev-java/jgraphx:1.8
-		dev-java/jlatexmath:1
+		>=dev-java/jlatexmath-1.0.2:1
 		dev-java/jogl:2
 		>=dev-java/jrosetta-1.0.4:0
 		>=dev-java/scirenderer-1.1.0:1
 		dev-java/skinlf:0
-		>=dev-java/xmlgraphics-commons-1.4:=
+		dev-java/xmlgraphics-commons:1.5
 		virtual/opengl
 		doc? ( dev-java/saxon:6.5 )
 		xcos? ( dev-java/commons-logging:0 ) )
@@ -117,7 +117,9 @@ pkg_setup() {
 }
 
 src_prepare() {
-#	epatch \
+	epatch \
+		"${FILESDIR}/${P}-java-path.patch" 
+#		"${FILESDIR}/${P}-jogl-path.patch" 
 #		"${FILESDIR}/${P}-fortran-link.patch" \
 #		"${FILESDIR}/${P}-followlinks.patch" \
 #		"${FILESDIR}/${P}-gluegen.patch" \
@@ -137,15 +139,17 @@ src_prepare() {
 
 	#add specific gentoo java directories
 	if use gui; then
-		sed -i -e "s|/usr/lib/jogl|/usr/lib/jogl-2|" \
-			-e "s|/usr/lib64/jogl|/usr/lib64/jogl-2|" configure.ac || die
-		sed -i -e "s|/usr/lib/gluegen|/usr/lib/gluegen-2|" \
-			-e "s|/usr/lib64/gluegen|/usr/lib64/gluegen-2|" \
+		sed -i -e "s|/usr/lib/jogl[2]|/usr/lib/jogl-2|" \
+			-e "s|/usr/lib64/jogl[2]|/usr/lib64/jogl-2|" configure.ac || die
+		sed -i -e "s|/usr/lib/gluegen[2]|/usr/lib/gluegen-2|" \
+			-e "s|/usr/lib64/gluegen[2]|/usr/lib64/gluegen-2|" \
 			-e "s|AC_CHECK_LIB(\[gluegen2-rt|AC_CHECK_LIB([gluegen-rt|" \
 			configure.ac || die
 
 		sed -i -e "s/jogl/jogl-2/" -e "s/gluegen/gluegen-2/" \
 			etc/librarypath.xml || die
+	#	sed -i -e "s/jogl/jogl-2/" -e "s/gluegen/gluegen-2/" \
+	#		etc/librarypath.xml || die
 	fi
 
 	mkdir jar || die
@@ -153,7 +157,7 @@ src_prepare() {
 	java-pkg_jar-from jgraphx-1.8,jlatexmath-1,flexdock,skinlf
 	java-pkg_jar-from jgoodies-looks-2.0,jrosetta,scirenderer-1
 	java-pkg_jar-from avalon-framework-4.2,jeuclid-core
-	java-pkg_jar-from xmlgraphics-commons-1.3,commons-io-1
+	java-pkg_jar-from xmlgraphics-commons-1.5,commons-io-1
 	java-pkg_jar-from jogl-2 jogl.all.jar jogl2.jar
 	java-pkg_jar-from gluegen-2 gluegen-rt.jar gluegen2-rt.jar
 	java-pkg_jar-from batik-1.7 batik-all.jar
@@ -176,6 +180,10 @@ src_prepare() {
 }
 
 src_configure() {
+	withjar() {
+		echo "--with-${1}=$(java-pkg_getjars ${1}) ";
+	}
+
 	if use gui; then
 		export JAVA_HOME="$(java-config -O)"
 	else

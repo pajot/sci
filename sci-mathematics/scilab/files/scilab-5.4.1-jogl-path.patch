@@ -1,0 +1,12 @@
+--- scilab_orig/etc/librarypath.xml	2013-04-18 17:12:39.685138811 +0200
++++ scilab/etc/librarypath.xml	2013-04-18 17:13:50.300590998 +0200
+@@ -48,6 +48,9 @@
+ <path value="/usr/lib/gluegen2/"/>
+ <path value="/usr/lib64/gluegen2/"/>
+ 
++<!-- Gentoo science overlay -->
++<path value="/usr/lib64/jogl-2/"/>
++
+ <!-- Some distributions (like openSUSE) put gluegen-rt in /usr/lib instead pf /usr/lib/jni -->
+ <path value="/usr/lib" />
+ 

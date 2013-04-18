@@ -60,7 +60,7 @@ CDEPEND="
 		dev-java/jlatexmath:1
 		dev-java/jogl:2
 		>=dev-java/jrosetta-1.0.4:0
-		dev-java/scirenderer:1
+		>=dev-java/scirenderer-1.1.0:1
 		dev-java/skinlf:0
 		>=dev-java/xmlgraphics-commons-1.4:=
 		virtual/opengl
@@ -117,12 +117,12 @@ pkg_setup() {
 }
 
 src_prepare() {
-	epatch \
-		"${FILESDIR}/${P}-fortran-link.patch" \
-		"${FILESDIR}/${P}-followlinks.patch" \
-		"${FILESDIR}/${P}-gluegen.patch" \
-		"${FILESDIR}/${P}-fix-random-runtime-failure.patch" \
-		"${FILESDIR}/${P}-builddocs.patch"
+#	epatch \
+#		"${FILESDIR}/${P}-fortran-link.patch" \
+#		"${FILESDIR}/${P}-followlinks.patch" \
+#		"${FILESDIR}/${P}-gluegen.patch" \
+#		"${FILESDIR}/${P}-fix-random-runtime-failure.patch" \
+#		"${FILESDIR}/${P}-builddocs.patch"
 
 	append-ldflags $(no-as-needed)
 

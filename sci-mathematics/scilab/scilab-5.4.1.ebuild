@@ -41,7 +41,6 @@ CDEPEND="
 	sci-libs/hdf5
 	dev-libs/libpcre
 	>=sci-libs/arpack-3
-	sci-libs/atlas
 	sys-devel/gettext
 	sys-libs/ncurses
 	sys-libs/readline
@@ -63,7 +62,7 @@ CDEPEND="
 		>=dev-java/jrosetta-1.0.4:0
 		dev-java/scirenderer:1
 		dev-java/skinlf:0
-		>=dev-java/xmlgraphics-commons:1.4
+		>=dev-java/xmlgraphics-commons-1.4:=
 		virtual/opengl
 		doc? ( dev-java/saxon:6.5 )
 		xcos? ( dev-java/commons-logging:0 ) )

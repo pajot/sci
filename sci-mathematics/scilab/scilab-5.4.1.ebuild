@@ -152,28 +152,6 @@ src_prepare() {
 	#		etc/librarypath.xml || die
 	fi
 
-	mkdir jar || die
-	pushd jar
-	java-pkg_jar-from jgraphx-1.8,jlatexmath-1,flexdock,skinlf
-	java-pkg_jar-from jgoodies-looks-2.0,jrosetta,scirenderer-1
-	java-pkg_jar-from avalon-framework-4.2,jeuclid-core
-	java-pkg_jar-from xmlgraphics-commons-1.5,commons-io-1
-	java-pkg_jar-from jogl-2 jogl.all.jar jogl2.jar
-	java-pkg_jar-from gluegen-2 gluegen-rt.jar gluegen2-rt.jar
-	java-pkg_jar-from batik-1.7 batik-all.jar
-	java-pkg_jar-from fop fop.jar
-	java-pkg_jar-from javahelp jhall.jar
-	if use xcos; then
-		java-pkg_jar-from commons-logging
-	fi
-	if use doc; then
-		java-pkg_jar-from jlatexmath-fop-1,saxon-6.5
-		java-pkg_jar-from xml-commons-external-1.4 xml-apis-ext.jar
-	fi
-	if use test; then
-		java-pkg_jar-from junit-4 junit.jar junit4.jar
-	fi
-	popd
 
 	java-pkg-opt-2_src_prepare
 	eautoconf
@@ -181,7 +159,14 @@ src_prepare() {
 
 src_configure() {
 	withjar() {
-		echo "--with-${1}=$(java-pkg_getjars ${1}) ";
+		if [[ -n $3 ]]; then
+			echo "--with-${1}=$(java-pkg_getjar ${2-$1} ${3}) "
+		else
+			echo "--with-${1}=$(java-pkg_getjars ${2-$1}) "
+		fi
+	}
+	use_withjar() {
+		use $1 && withjar $2 $3 $4
 	}
 
 	if use gui; then
@@ -221,7 +206,30 @@ src_configure() {
 		$(use_with tk) \
 		$(use_with umfpack) \
 		$(use_with xcos) \
-		$(use_with xcos modelica)
+		$(use_with xcos modelica) \
+		$(withjar jgraphx jgraphx-1.8) \
+		$(withjar jlatexmath jlatexmath-1) \
+		$(withjar flexdock) \
+		$(withjar skinlf) \
+		$(withjar jgoodies-looks jgoodies-looks-2.0) \
+		$(withjar jrosetta-api jrosetta jrosetta-api.jar) \
+		$(withjar jrosetta-engine jrosetta jrosetta-engine.jar ) \
+		$(withjar scirenderer scirenderer-1) \
+		$(withjar avalon-framework avalon-framework-4.2) \
+		$(withjar jeuclid-core) \
+		$(withjar xmlgraphics-commons xmlgraphics-commons-1.5) \
+		$(withjar commons-io commons-io-1) \
+		$(withjar jogl2 jogl-2 jogl.all.jar) \
+		$(withjar gluegen2-rt gluegen-2 gluegen-rt.jar) \
+		$(withjar batik-all batik-1.7 batik-all.jar) \
+		$(withjar fop fop fop.jar) \
+		$(withjar jhall javahelp jhall.jar) \
+		$(use_withjar xcos commons-logging commons-logging commons-logging.jar) \
+		$(use_withjar doc jlatexmath-fop jlatexmath-fop-1) \
+		$(use_withjar doc saxon saxon-6.5) \
+		$(use_withjar doc xml-apis-ext xml-commons-external-1.4 xml-apis-ext.jar) \
+		$(use_withjar test junit4 junit-4 junit.jar junit4.jar)
+
 }
 
 src_compile() {

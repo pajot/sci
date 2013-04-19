@@ -10,7 +10,7 @@
 +    if ! test x$withval != x ; then
 +      PACKAGE_JAR_FILE=$withval
 +      found_jar=yes
-+    fi]);
++    fi])
 +  if test "$found_jar" = "no"; then
      AC_MSG_CHECKING($1)
 -    PACKAGE_JAR_FILE=

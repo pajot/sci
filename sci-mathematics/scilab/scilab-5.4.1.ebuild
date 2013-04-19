@@ -118,8 +118,9 @@ pkg_setup() {
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}/${P}-java-path.patch" 
-#		"${FILESDIR}/${P}-jogl-path.patch" 
+		"${FILESDIR}"/${P}-java-path.patch \
+		"${FILESDIR}"/${P}-jgraphx-configure.patch
+#		"${FILESDIR}/${P}-jogl-path.patch"
 #		"${FILESDIR}/${P}-fortran-link.patch" \
 #		"${FILESDIR}/${P}-followlinks.patch" \
 #		"${FILESDIR}/${P}-gluegen.patch" \
@@ -129,7 +130,7 @@ src_prepare() {
 	append-ldflags $(no-as-needed)
 
 	# increases java heap to 512M when building docs (sync with cheqreqs above)
-	use doc && epatch "${FILESDIR}/${P}-java-heap.patch"
+	use doc && epatch "${FILESDIR}"/${P}-java-heap.patch
 
 	# use the LINGUAS variable that we set
 	sed -i -e "/^ALL_LINGUAS=/d" -e "/^ALL_LINGUAS_DOC=/d" -i configure.ac
@@ -139,41 +140,16 @@ src_prepare() {
 
 	#add specific gentoo java directories
 	if use gui; then
-		sed -i -e "s|/usr/lib/jogl[2]|/usr/lib/jogl-2|" \
-			-e "s|/usr/lib64/jogl[2]|/usr/lib64/jogl-2|" configure.ac || die
-		sed -i -e "s|/usr/lib/gluegen[2]|/usr/lib/gluegen-2|" \
-			-e "s|/usr/lib64/gluegen[2]|/usr/lib64/gluegen-2|" \
+		sed -i	-e "s|/usr/lib/jogl2\?|/usr/lib/jogl-2|" \
+			-e "s|/usr/lib64/jogl2\?|/usr/lib64/jogl-2|" \
+			-e "s|/usr/lib/gluegen2\?|/usr/lib/gluegen-2|" \
+			-e "s|/usr/lib64/gluegen2\?|/usr/lib64/gluegen-2|" \
 			-e "s|AC_CHECK_LIB(\[gluegen2-rt|AC_CHECK_LIB([gluegen-rt|" \
 			configure.ac || die
 
 		sed -i -e "s/jogl/jogl-2/" -e "s/gluegen/gluegen-2/" \
 			etc/librarypath.xml || die
-	#	sed -i -e "s/jogl/jogl-2/" -e "s/gluegen/gluegen-2/" \
-	#		etc/librarypath.xml || die
 	fi
-
-	mkdir jar || die
-	pushd jar
-	java-pkg_jar-from jgraphx-1.8,jlatexmath-1,flexdock,skinlf
-	java-pkg_jar-from jgoodies-looks-2.0,jrosetta,scirenderer-1
-	java-pkg_jar-from avalon-framework-4.2,jeuclid-core
-	java-pkg_jar-from xmlgraphics-commons-1.5,commons-io-1
-	java-pkg_jar-from jogl-2 jogl.all.jar jogl2.jar
-	java-pkg_jar-from gluegen-2 gluegen-rt.jar gluegen2-rt.jar
-	java-pkg_jar-from batik-1.7 batik-all.jar
-	java-pkg_jar-from fop fop.jar
-	java-pkg_jar-from javahelp jhall.jar
-	if use xcos; then
-		java-pkg_jar-from commons-logging
-	fi
-	if use doc; then
-		java-pkg_jar-from jlatexmath-fop-1,saxon-6.5
-		java-pkg_jar-from xml-commons-external-1.4 xml-apis-ext.jar
-	fi
-	if use test; then
-		java-pkg_jar-from junit-4 junit.jar junit4.jar
-	fi
-	popd
 
 	java-pkg-opt-2_src_prepare
 	eautoconf
@@ -181,7 +157,14 @@ src_prepare() {
 
 src_configure() {
 	withjar() {
-		echo "--with-${1}=$(java-pkg_getjars ${1}) ";
+		use gui && if [[ -n $3 ]]; then
+			echo "--with-${1}-jar=$(java-pkg_getjar ${2-$1} ${3}) "
+		else
+			echo "--with-${1}-jar=$(java-pkg_getjars ${2-$1}) "
+		fi
+	}
+	use_withjar() {
+		use $1 && withjar $2 $3 $4
 	}
 
 	if use gui; then
@@ -221,7 +204,30 @@ src_configure() {
 		$(use_with tk) \
 		$(use_with umfpack) \
 		$(use_with xcos) \
-		$(use_with xcos modelica)
+		$(use_with xcos modelica) \
+		$(withjar jgraphx jgraphx-1.8) \
+		$(withjar jlatexmath jlatexmath-1) \
+		$(withjar flexdock) \
+		$(withjar skinlf) \
+		$(withjar jgoodies-looks jgoodies-looks-2.0) \
+		$(withjar jrosetta-api jrosetta jrosetta-api.jar) \
+		$(withjar jrosetta-engine jrosetta jrosetta-engine.jar ) \
+		$(withjar scirenderer scirenderer-1) \
+		$(withjar avalon-framework avalon-framework-4.2) \
+		$(withjar jeuclid-core) \
+		$(withjar xmlgraphics-commons xmlgraphics-commons-1.5) \
+		$(withjar commons-io commons-io-1) \
+		$(withjar jogl2 jogl-2 jogl.all.jar) \
+		$(withjar gluegen2-rt gluegen-2 gluegen-rt.jar) \
+		$(withjar batik-all batik-1.7 batik-all.jar) \
+		$(withjar fop fop fop.jar) \
+		$(withjar jhall javahelp jhall.jar) \
+		$(use_withjar xcos commons-logging commons-logging commons-logging.jar) \
+		$(use_withjar doc jlatexmath-fop jlatexmath-fop-1) \
+		$(use_withjar doc saxon saxon-6.5) \
+		$(use_withjar doc xml-apis-ext xml-commons-external-1.4 xml-apis-ext.jar) \
+		$(use_withjar test junit4 junit-4 junit.jar junit4.jar)
+
 }
 
 src_compile() {

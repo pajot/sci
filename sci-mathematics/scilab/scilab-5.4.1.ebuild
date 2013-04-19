@@ -118,8 +118,9 @@ pkg_setup() {
 
 src_prepare() {
 	epatch \
-		"${FILESDIR}/${P}-java-path.patch" 
-#		"${FILESDIR}/${P}-jogl-path.patch" 
+		"${FILESDIR}"/${P}-java-path.patch \
+		"${FILESDIR}"/${P}-jgraphx-configure.patch
+#		"${FILESDIR}/${P}-jogl-path.patch"
 #		"${FILESDIR}/${P}-fortran-link.patch" \
 #		"${FILESDIR}/${P}-followlinks.patch" \
 #		"${FILESDIR}/${P}-gluegen.patch" \
@@ -129,7 +130,7 @@ src_prepare() {
 	append-ldflags $(no-as-needed)
 
 	# increases java heap to 512M when building docs (sync with cheqreqs above)
-	use doc && epatch "${FILESDIR}/${P}-java-heap.patch"
+	use doc && epatch "${FILESDIR}"/${P}-java-heap.patch
 
 	# use the LINGUAS variable that we set
 	sed -i -e "/^ALL_LINGUAS=/d" -e "/^ALL_LINGUAS_DOC=/d" -i configure.ac
@@ -139,19 +140,16 @@ src_prepare() {
 
 	#add specific gentoo java directories
 	if use gui; then
-		sed -i -e "s|/usr/lib/jogl[2]|/usr/lib/jogl-2|" \
-			-e "s|/usr/lib64/jogl[2]|/usr/lib64/jogl-2|" configure.ac || die
-		sed -i -e "s|/usr/lib/gluegen[2]|/usr/lib/gluegen-2|" \
-			-e "s|/usr/lib64/gluegen[2]|/usr/lib64/gluegen-2|" \
+		sed -i	-e "s|/usr/lib/jogl2\?|/usr/lib/jogl-2|" \
+			-e "s|/usr/lib64/jogl2\?|/usr/lib64/jogl-2|" \
+			-e "s|/usr/lib/gluegen2\?|/usr/lib/gluegen-2|" \
+			-e "s|/usr/lib64/gluegen2\?|/usr/lib64/gluegen-2|" \
 			-e "s|AC_CHECK_LIB(\[gluegen2-rt|AC_CHECK_LIB([gluegen-rt|" \
 			configure.ac || die
 
 		sed -i -e "s/jogl/jogl-2/" -e "s/gluegen/gluegen-2/" \
 			etc/librarypath.xml || die
-	#	sed -i -e "s/jogl/jogl-2/" -e "s/gluegen/gluegen-2/" \
-	#		etc/librarypath.xml || die
 	fi
-
 
 	java-pkg-opt-2_src_prepare
 	eautoconf
@@ -160,9 +158,9 @@ src_prepare() {
 src_configure() {
 	withjar() {
 		if [[ -n $3 ]]; then
-			echo "--with-${1}=$(java-pkg_getjar ${2-$1} ${3}) "
+			echo "--with-${1}-jar=$(java-pkg_getjar ${2-$1} ${3}) "
 		else
-			echo "--with-${1}=$(java-pkg_getjars ${2-$1}) "
+			echo "--with-${1}-jar=$(java-pkg_getjars ${2-$1}) "
 		fi
 	}
 	use_withjar() {

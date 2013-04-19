@@ -7,7 +7,7 @@
 +  PACKAGE_JAR_FILE=
 +  found_jar=no
 +  AC_ARG_WITH([$1],[AS_HELP_STRING([--with-$1],[path to jar file for $1])],[
-+    if ! test x$withval = x ; then
++    if ! test x$withval != x ; then
 +      PACKAGE_JAR_FILE=$withval
 +      found_jar=yes
 +    fi]);

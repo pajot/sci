@@ -157,7 +157,7 @@ src_prepare() {
 
 src_configure() {
 	withjar() {
-		if [[ -n $3 ]]; then
+		use gui && if [[ -n $3 ]]; then
 			echo "--with-${1}-jar=$(java-pkg_getjar ${2-$1} ${3}) "
 		else
 			echo "--with-${1}-jar=$(java-pkg_getjars ${2-$1}) "
